@@ -94,10 +94,10 @@ To run the JCStress tests:
 
 ```bash
 # On Linux/macOS
-./gradlew jcstress
+./gradlew jcstress --no-configuration-cache     
 
 # On Windows
-.\gradlew.bat jcstress
+.\gradlew.bat jcstress --no-configuration-cache     
 ```
 
 After execution, the JCStress reports, including detailed results and findings, can be found in:
