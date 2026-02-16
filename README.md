@@ -1,14 +1,16 @@
-# DEVOXX Concurrent Like Client
+# DEVOXX Concurrent Like Client (Concurrency Fixed)
 
-This project demonstrates a concurrent Java client designed to interact with a like-counting service, likely simulating multiple users sending "like" requests simultaneously. It also includes Java Concurrency Stress (JCStress) tests to verify the correctness of concurrent operations within the application's domain logic.
+This project demonstrates a concurrent Java client designed to interact with a like-counting service, likely simulating multiple users sending "like" requests simultaneously. This version specifically includes a fix for concurrency issues in the `LikeCounter` domain object, making its operations thread-safe. It also includes Java Concurrency Stress (JCStress) tests to verify the correctness of concurrent operations within the application's domain logic.
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
 - [Building the Project](#building-the-project)
 - [Running the Concurrent Client](#running-the-concurrent-client)
+- [Resetting the Like Count](#resetting-the-like-count)
 - [Running Unit Tests](#running-unit-tests)
 - [Running JCStress Tests](#running-jcstress-tests)
+- [Observing the Concurrency Fix](#observing-the-concurrency-fix)
 
 ## Prerequisites
 
@@ -92,10 +94,10 @@ To run the JCStress tests:
 
 ```bash
 # On Linux/macOS
-./gradlew jcstress
+./gradlew jcstress --no-configuration-cache     
 
 # On Windows
-.\gradlew.bat jcstress
+.\gradlew.bat jcstress --no-configuration-cache     
 ```
 
 After execution, the JCStress reports, including detailed results and findings, can be found in:
@@ -104,6 +106,26 @@ After execution, the JCStress reports, including detailed results and findings, 
 -   `build/tmp/jcstress/` (for raw output and intermediate files)
 
 Specifically, look for `index.html` in `build/reports/jcstress/` for a readable report.
+
+## Observing the Concurrency Fix
+
+In the previous version of the `LikeCounter`, a race condition existed where concurrent increments could lead to an incorrect final count (less than the total requests sent).
+
+With this fix, the `LikeCounter` now uses `java.util.concurrent.atomic.AtomicInteger`, ensuring that all increment operations are atomic and thread-safe.
+
+To observe the difference:
+
+1.  **Run the `DemoApplication`**: Start the main application.
+2.  **Reset the Like Count**: Before each test, run `curl -X DELETE http://localhost:7070/likes`.
+3.  **Run `ConcurrentLikeClient` with high concurrency**:
+    ```bash
+    # Try with a large number of requests and concurrency
+    ./run-concurrent-client.sh 200 20000
+    ```
+    In the *buggy version*, the "Final like count" would often be less than 20000.
+    In *this fixed version*, the "Final like count" should reliably be equal to the total number of requests sent (e.g., 20000).
+
+4.  **Run JCStress Tests**: The JCStress tests (run via `./gradlew jcstress`) are designed to expose such concurrency bugs. In the buggy version, these tests might show "failures" or "undesired results". In this fixed version, they should all pass without indicating any concurrency issues related to the `LikeCounter`'s increment/get operations.
 
 ---
 
