@@ -59,6 +59,17 @@ For example, to test with a low number of concurrent requests where issues might
 
 The client will execute the specified number of concurrent requests and then report the final like count.
 
+## Resetting the Like Count
+
+You can reset the current like count to zero using a `DELETE` request to the `/likes` endpoint. This is useful for running multiple tests without restarting the server.
+
+```bash
+# Example using curl
+curl -X DELETE http://localhost:7070/likes
+```
+
+After this, a subsequent `GET http://localhost:7070/likes` should return `{"likes":0}`.
+
 ## Running Unit Tests
 
 To execute the standard unit tests for the project:

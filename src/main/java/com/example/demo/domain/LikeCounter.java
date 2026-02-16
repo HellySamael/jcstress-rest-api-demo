@@ -26,4 +26,8 @@ public class LikeCounter {
     public int getCount() {
         return count;
     }
+
+    public void reset() {
+        count = 0;
+    }
 }

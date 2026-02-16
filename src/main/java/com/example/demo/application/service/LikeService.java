@@ -28,4 +28,11 @@ public class LikeService implements LikeUseCase {
     public int getLikes() {
         return likeRepository.get().getCount();
     }
+
+    @Override
+    public void resetLikes() {
+        LikeCounter likeCounter = likeRepository.get();
+        likeCounter.reset();
+        likeRepository.save(likeCounter); // Save the reset counter (though for in-memory, save is a no-op)
+    }
 }

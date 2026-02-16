@@ -29,5 +29,10 @@ public class LikeController {
             Map<String, Integer> response = Collections.singletonMap("likes", likes);
             ctx.json(response);
         });
+
+        app.delete("/likes", ctx -> {
+            likeUseCase.resetLikes();
+            ctx.status(204); // No Content
+        });
     }
 }
