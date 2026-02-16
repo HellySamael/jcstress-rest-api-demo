@@ -31,17 +31,33 @@ This will generate the necessary build artifacts in the `build/` and `app/build/
 
 ## Running the Concurrent Client
 
-The `ConcurrentLikeClient` simulates concurrent requests to a like-counting service.
+The `ConcurrentLikeClient` simulates concurrent requests to a like-counting service. It now accepts optional command-line arguments to customize the number of concurrent requests and the total number of requests.
+
+**Usage:**
 
 ```bash
+# Run with default values (100 concurrent requests, 10000 total requests)
 # On Linux/macOS (using Git Bash, WSL, or any Unix-like shell)
 ./run-concurrent-client.sh
 
 # On Windows (using Command Prompt or PowerShell)
 .run-concurrent-client.bat
+
+# Run with custom values (e.g., 10 concurrent requests, 100 total requests)
+# On Linux/macOS
+./run-concurrent-client.sh 10 100
+
+# On Windows
+.run-concurrent-client.bat 10 100
 ```
 
-The client will execute a predefined number of concurrent requests and then report the final like count.
+-   The first argument (optional) specifies the **number of concurrent requests**. Default is `100`.
+-   The second argument (optional) specifies the **total number of POST requests**. Default is `10000`.
+
+For example, to test with a low number of concurrent requests where issues might be less apparent, you could run:
+`./run-concurrent-client.sh 5 50`
+
+The client will execute the specified number of concurrent requests and then report the final like count.
 
 ## Running Unit Tests
 
