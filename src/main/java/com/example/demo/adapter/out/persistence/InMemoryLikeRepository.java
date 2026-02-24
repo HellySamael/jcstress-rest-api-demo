@@ -3,15 +3,12 @@ package com.example.demo.adapter.out.persistence;
 import com.example.demo.application.port.out.LikeRepository;
 import com.example.demo.domain.LikeCounter;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
-@Singleton
+
 public class InMemoryLikeRepository implements LikeRepository {
 
     private final LikeCounter likeCounter;
 
-    @Inject
     public InMemoryLikeRepository(LikeCounter likeCounter) {
         this.likeCounter = likeCounter;
     }

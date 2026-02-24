@@ -31,11 +31,6 @@ dependencies {
     // Logging
     implementation("org.slf4j:slf4j-simple:2.0.17")
 
-    // Dagger 2 (dependency injection)
-    implementation("com.google.dagger:dagger:2.59.1")
-    implementation("jakarta.inject:jakarta.inject-api:2.0.1") // Use Jakarta Inject for @Inject, @Singleton
-    annotationProcessor("com.google.dagger:dagger-compiler:2.59.1")
-
     // JCStress (concurrency testing)
     jcstressImplementation("org.openjdk.jcstress:jcstress-core:0.16")
     jcstressAnnotationProcessor("org.openjdk.jcstress:jcstress-core:0.16")

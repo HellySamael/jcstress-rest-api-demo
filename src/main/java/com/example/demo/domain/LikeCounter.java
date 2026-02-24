@@ -1,14 +1,8 @@
 package com.example.demo.domain;
 
-import jakarta.inject.Singleton;
-import jakarta.inject.Inject; // Import for Dagger (optional, but good practice for domain objects that are singletons)
-
-@Singleton // Mark as a Dagger singleton
 public class LikeCounter {
 
-    @Inject
     public LikeCounter() {
-        // Dagger will use this constructor to create an instance
     }
 
     private int count = 0;

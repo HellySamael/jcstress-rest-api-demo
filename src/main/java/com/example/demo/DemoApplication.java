@@ -6,11 +6,11 @@ import io.javalin.Javalin;
 public class DemoApplication {
 
     public static void main(String[] args) {
-        // Build Dagger graph
-        AppComponent appComponent = DaggerAppComponent.create();
+        // Build the dependency graph manually
+        DIContainer container = new DIContainer();
 
-        // Get the LikeController from the Dagger graph
-        LikeController likeController = appComponent.likeController();
+        // Get the LikeController from the container
+        LikeController likeController = container.getLikeController();
 
         // Initialize and configure Javalin
         Javalin app = Javalin.create(config -> {

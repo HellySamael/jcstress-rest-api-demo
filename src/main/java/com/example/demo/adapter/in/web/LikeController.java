@@ -3,17 +3,13 @@ package com.example.demo.adapter.in.web;
 import com.example.demo.application.port.in.LikeUseCase;
 import io.javalin.Javalin;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import java.util.Collections;
 import java.util.Map;
 
-@Singleton
 public class LikeController {
 
     private final LikeUseCase likeUseCase;
 
-    @Inject
     public LikeController(LikeUseCase likeUseCase) {
         this.likeUseCase = likeUseCase;
     }
