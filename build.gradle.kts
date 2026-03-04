@@ -31,9 +31,22 @@ dependencies {
     // Logging
     implementation("org.slf4j:slf4j-simple:2.0.17")
 
+    // h2database (in-memory database for testing)
+    implementation("com.h2database:h2:2.4.240")
+
+    // HikariCP connection pool
+    implementation("com.zaxxer:HikariCP:5.0.1")
+
     // JCStress (concurrency testing)
     jcstressImplementation("org.openjdk.jcstress:jcstress-core:0.16")
     jcstressAnnotationProcessor("org.openjdk.jcstress:jcstress-core:0.16")
+
+    // Unit testing (JUnit Jupiter)
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+
+    // Ensure JUnit Platform launcher and Jupiter engine are available at test runtime
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.2")
 }
 
 jcstress {
@@ -60,4 +73,8 @@ tasks.jcstressDistTar {
 
 tasks.jcstressDistZip {
     enabled = false
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

@@ -7,4 +7,76 @@ build
 # Ignore Kotlin plugin data
 .kotlin
 
- app/*
+# Gradle
+.gradle/
+build/
+
+# Kotlin/IDE/plugin
+.kotlin/
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ / IDEA
+.idea/
+*.iml
+out/
+result/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.settings/
+.classpath
+.project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test reports and coverage
+test-results/
+coverage/
+build/reports/
+build/test-results/
+
+# JCStress results and temporary files
+jcstress-results-*.bin.gz
+build/reports/jcstress/
+build/tmp/jcstress/
+tmp/jcstress/
+
+# Node
+node_modules/
+
+# Misc
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Environment / secrets
+.env
+.env.*
+secrets.yml
+
+# Distribution artifacts
+dist/
+
+# Docker
+docker-compose.override.yml
+
+# Local gradle caches
+.gradle/
+
+# If you have committed files before adding this .gitignore, remove them from the index with:
+# git rm --cached <file>
+# then commit the .gitignore

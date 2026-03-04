@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vote Izza — Demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <h1>Vote pour ta pizza préférée</h1>
+      <p class="lead">Choisis une pizza et vote ! Les votes sont récupérés depuis l'API backend.</p>
+      <p class="impl">Implémentation serveur : <strong id="implName">chargement...</strong></p>
+      <p class="total">Total des votes : <strong id="totalVotes">0</strong></p>
+    </header>
+
+    <section class="controls-row">
+      <div class="controls">
+        <button id="refresh">Rafraîchir</button>
+        <button id="reset" class="secondary">Réinitialiser (admin)</button>
+      </div>
+    </section>
+
+    <section id="items" class="items" aria-live="polite"></section>
+
+    <footer class="footer-note">
+      <small>Les données sont en mémoire et non persistées.</small>
+    </footer>
+  </main>
+
+  <!-- Simple toast area for feedback -->
+  <div id="toast" class="toast" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

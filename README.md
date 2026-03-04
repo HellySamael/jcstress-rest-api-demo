@@ -29,64 +29,53 @@ To build the project, including compiling Java code and packaging JARs, use the 
 
 This will generate the necessary build artifacts in the `build/` and `app/build/` directories.
 
-## Running the Concurrent Client
+## Running the Concurrent Clients
 
-The `ConcurrentLikeClient` simulates concurrent requests to a like-counting service. It now accepts optional command-line arguments to customize the number of concurrent requests and the total number of requests.
+There are two concurrent clients available to test the application:
+
+### 1. Like Client (Single Counter)
+The `ConcurrentLikeClient` simulates concurrent requests to a single global like counter.
 
 **Usage:**
-
 ```bash
-# Run with default values (100 concurrent requests, 10000 total requests)
-# On Linux/macOS (using Git Bash, WSL, or any Unix-like shell)
-./run-concurrent-client.sh
-
-# On Windows (using Command Prompt or PowerShell)
-.run-concurrent-client.bat
-
-# Run with custom values (e.g., 10 concurrent requests, 100 total requests)
-# On Linux/macOS
-./run-concurrent-client.sh 10 100
-
 # On Windows
-.run-concurrent-client.bat 10 100
+.\run-concurrent-client.bat [concurrent] [total]
+# On Linux/macOS
+./run-concurrent-client.sh [concurrent] [total]
+```
+
+### 2. Vote Client (Multiple Items/HashMap)
+The `ConcurrentVoteClient` simulates concurrent votes across multiple items ("item1" to "item4"). This tests both the individual counters and the integrity of the underlying `HashMap`.
+
+**Usage:**
+```bash
+# On Windows
+.\run-concurrent-vote-client.bat [concurrent] [total]
+# On Linux/macOS
+./run-concurrent-vote-client.sh [concurrent] [total]
 ```
 
 -   The first argument (optional) specifies the **number of concurrent requests**. Default is `100`.
 -   The second argument (optional) specifies the **total number of POST requests**. Default is `10000`.
 
-For example, to test with a low number of concurrent requests where issues might be less apparent, you could run:
-`./run-concurrent-client.sh 5 50`
+## Resetting Counts
 
-The client will execute the specified number of concurrent requests and then report the final like count.
-
-## Resetting the Like Count
-
-You can reset the current like count to zero using a `DELETE` request to the `/likes` endpoint. This is useful for running multiple tests without restarting the server.
+You can reset the counts using `DELETE` requests:
 
 ```bash
-# Example using curl
+# Reset likes
 curl -X DELETE http://localhost:7070/likes
+
+# Reset votes
+curl -X DELETE http://localhost:7070/votes
 ```
-
-After this, a subsequent `GET http://localhost:7070/likes` should return `{"likes":0}`.
-
-## Running Unit Tests
-
-To execute the standard unit tests for the project:
-
-```bash
-# On Linux/macOS
-./gradlew test
-
-# On Windows
-.\gradlew.bat test
-```
-
-Test reports will be generated in `app/build/reports/tests/test/`.
 
 ## Running JCStress Tests
 
 JCStress (Java Concurrency Stress) tests are specifically designed to find bugs in concurrent code.
+
+- **LikeCounterStressTest**: Tests race conditions on a simple counter with 2 actors.
+- **VoteCounterStressTest**: Tests race conditions and `HashMap` integrity using **4 actors** and multiple items.
 
 To run the JCStress tests:
 
