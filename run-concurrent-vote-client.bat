@@ -11,6 +11,6 @@ REM Add all JARs from app\build\libs
 FOR %%i IN ("app\build\libs\*.jar") DO CALL SET "CLASSPATH=%%CLASSPATH%%;%%i"
 
 REM Execute the Java client
-java -cp "%CLASSPATH%" com.example.demo.client.ConcurrentVoteClient %*
+java -cp "%CLASSPATH%" com.example.demo.ConcurrentVoteClient %*
 
 echo Java client finished.
