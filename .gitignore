@@ -10,6 +10,7 @@ build
 # Gradle
 .gradle/
 build/
+bin/
 
 # Kotlin/IDE/plugin
 .kotlin/

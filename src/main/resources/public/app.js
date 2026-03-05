@@ -3,7 +3,21 @@
 // POST /votes/{itemId} -> increments and returns {votes: newCount}
 // GET  /votes -> returns { itemId: count, ... }
 
-const API_BASE = '/'; // same origin
+const API_BASE = (() => {
+  // Optional override: index.html?api=http://localhost:7070/
+  const fromQuery = new URLSearchParams(window.location.search).get('api');
+  if (fromQuery && fromQuery.trim() !== '') {
+    return fromQuery.endsWith('/') ? fromQuery : fromQuery + '/';
+  }
+
+  // If UI is served by backend itself, keep same-origin paths.
+  if (window.location.port === '7070') {
+    return '/';
+  }
+
+  // If UI is served elsewhere (e.g. Live Server), target local API.
+  return 'http://localhost:7070/';
+})();
 
 const PIZZAS = [
   { id: 'margherita', name: 'Margherita', ingredients: ['Tomate', 'Mozzarella', 'Basilic'], image: 'images/margherita.svg' },

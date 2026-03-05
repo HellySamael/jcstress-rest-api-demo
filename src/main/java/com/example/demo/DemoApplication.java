@@ -37,37 +37,48 @@ public final class DemoApplication {
 
         // Initialize and configure Javalin
         // Serve static resources from src/main/resources/public at '/'
-        Javalin.create(DemoApplication::configure)
-                // Start on port 7070
-                .post("/votes/{itemId}", ctx -> {
-                    String itemId = ctx.pathParam("itemId");
-                    int newCount = voteCounter.vote(itemId);
-                    ctx.json(java.util.Collections.singletonMap("votes", newCount));
-                })
+        Javalin app = Javalin.create(DemoApplication::configure);
 
-                // Get all vote counts
-                .get("/votes", ctx -> {
-                    ctx.json(voteCounter.getVotes());
-                })
+        // Simple CORS support for local demos (UI on another origin/port).
+        app.before(ctx -> {
+            ctx.header("Access-Control-Allow-Origin", "*");
+            ctx.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+            ctx.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            ctx.header("Access-Control-Max-Age", "3600");
+        });
 
-                // Get vote count for a specific item
-                .get("/votes/{itemId}", ctx -> {
-                    String itemId = ctx.pathParam("itemId");
-                    ctx.json(java.util.Collections.singletonMap("votes", voteCounter.getVotesFor(itemId)));
-                })
+        app.options("/*", ctx -> ctx.status(204));
 
-                // Info: which implementation is running (useful for demo)
-                .get("/info", ctx -> {
-                    ctx.json(java.util.Collections.singletonMap("impl", implName));
-                })
+        // Start on port 7070
+        app.post("/votes/{itemId}", ctx -> {
+            String itemId = ctx.pathParam("itemId");
+            int newCount = voteCounter.vote(itemId);
+            ctx.json(java.util.Collections.singletonMap("votes", newCount));
+        });
 
-                // Reset all votes
-                .delete("/votes", ctx -> {
-                    voteCounter.resetVotes();
-                    ctx.status(204); // No Content
-                })
+        // Get all vote counts
+        app.get("/votes", ctx -> {
+            ctx.json(voteCounter.getVotes());
+        });
 
-                .start(7070);
+        // Get vote count for a specific item
+        app.get("/votes/{itemId}", ctx -> {
+            String itemId = ctx.pathParam("itemId");
+            ctx.json(java.util.Collections.singletonMap("votes", voteCounter.getVotesFor(itemId)));
+        });
+
+        // Info: which implementation is running (useful for demo)
+        app.get("/info", ctx -> {
+            ctx.json(java.util.Collections.singletonMap("impl", implName));
+        });
+
+        // Reset all votes
+        app.delete("/votes", ctx -> {
+            voteCounter.resetVotes();
+            ctx.status(204); // No Content
+        });
+
+        app.start(7070);
 
         System.out.println("Javalin application started on port 7070.");
         System.out.println("Using vote counter implementation: " + implName);
