@@ -29,6 +29,7 @@ public final class DemoApplication {
             case "longadder" -> new LongAdderCounter();
             case "racydb" -> new RacyDbCounter();
             case "safedb" -> new SafeDbCounter();
+            case "threadsave" -> new ThreadSafeConcurentHashMapCounter();
             default -> new ThreadSafeConcurentHashMapCounter();
         };
 
