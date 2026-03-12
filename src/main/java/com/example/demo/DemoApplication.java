@@ -9,6 +9,7 @@ import com.example.demo.counter.SafeDbCounter;
 import com.example.demo.counter.SyncCounter;
 import com.example.demo.counter.ThreadSafeConcurentHashMapCounter;
 import io.javalin.Javalin;
+import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.staticfiles.Location;
 
@@ -27,8 +28,8 @@ public final class DemoApplication {
             case "sync" -> new SyncCounter();
             case "concurrent" -> new ConcurrentHashMapCounter();
             case "longadder" -> new LongAdderCounter();
-            case "racydb" -> new RacyDbCounter();
-            case "safedb" -> new SafeDbCounter();
+            case "racydb"     -> new RacyDbCounter("pizza_votes");
+            case "safedb"     -> new SafeDbCounter("pizza_votes");
             case "threadsave" -> new ThreadSafeConcurentHashMapCounter();
             default -> new ThreadSafeConcurentHashMapCounter();
         };

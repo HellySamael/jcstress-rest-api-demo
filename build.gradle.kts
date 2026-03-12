@@ -31,8 +31,9 @@ dependencies {
     // Logging
     implementation("org.slf4j:slf4j-simple:2.0.17")
 
-    // h2database (in-memory database for testing)
-    implementation("com.h2database:h2:2.4.240")
+
+    // PostgreSQL driver (used by the REST server in production mode)
+    implementation("org.postgresql:postgresql:42.7.4")
 
     // HikariCP connection pool
     implementation("com.zaxxer:HikariCP:5.0.1")

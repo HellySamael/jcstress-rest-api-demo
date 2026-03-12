@@ -97,3 +97,13 @@ Specifically, look for `index.html` in `build/reports/jcstress/` for a readable 
 ---
 
 Feel free to explore the code in `src/main/java/com/example/demo/` and `src/jcstress/java/com/example/demo/` for more details on the client and the concurrency tests.
+
+
+Partie JMM
+1/ HashMapCounter
+2/ la correction  est le SyncCounter
+3/ on veut optimiser le SyncCounter pour améliorer la performance et la sécurité. Voici une proposition de modification : ConcurrentHashMapCounter
+4/ oups c'est pas concurent, ca devient ThreadSafeConcurentHashMapCounter
+
+partie Distribué (DB pg)
+1/ racy RacyDbCounter devient SafeDbCounter

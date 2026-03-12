@@ -1,6 +1,5 @@
 package com.example.demo.counter;
 
-import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
@@ -8,108 +7,170 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
 /**
- * Deliberately racy DB-backed counter: performs SELECT then UPDATE (read-modify-write)
- * without any transaction/locking so concurrent actors can lose updates.
- * This is intended for JCStress demonstration of race conditions on DB usage.
+ * ❌ Deliberately racy DB-backed counter: performs SELECT then UPDATE
+ * (read-modify-write) without any transaction/locking, so concurrent actors
+ * can lose updates. Intended for JCStress demonstration of race conditions.
  *
- * Each instance uses its own uniquely-named table so that concurrent JCStress
- * workers do not contaminate each other's state across iterations.
+ * Uses PostgreSQL via {@link DataSourceFactory}.
+ *
+ * Two construction modes:
+ *   - RacyDbCounter()           — JCStress mode: creates a UUID-suffixed table per
+ *                                  instance so workers never share state.
+ *   - RacyDbCounter("pizza_votes") — Server mode: uses a fixed shared table.
  */
 public final class RacyDbCounter implements PizzaCounter {
 
-    private static final HikariDataSource DATA_SOURCE;
-    private static final Random RAND = new Random();
+    private static final HikariDataSource DATA_SOURCE = DataSourceFactory.SERVER_DATA_SOURCE;
 
-    static {
-        HikariConfig config = new HikariConfig();
-        // Named in-memory DB shared across connections within the same JVM
-        config.setJdbcUrl("jdbc:h2:mem:jcstress;DB_CLOSE_DELAY=-1");
-        config.setUsername("sa");
-        config.setPassword("");
-        config.setMaximumPoolSize(16);
-        config.setConnectionTimeout(30000);
-        config.setPoolName("racy-hikari-pool");
-        DATA_SOURCE = new HikariDataSource(config);
-    }
+    /**
+     * Pizza names matching the 01-init.sql seed script.
+     * Pre-seeded by resetVotes() before every JCStress iteration so that
+     * SELECT FOR UPDATE always finds an existing row to lock.
+     */
+    static final List<String> KNOWN_PIZZAS = List.of(
+            "item1", "item2",
+            "margherita", "pepperoni", "funghi", "quattro");
 
-    // Per-instance table name: isolates each JCStress @State instance completely
     private final String table;
 
+    /**
+     * JCStress constructor — creates a fresh UUID-suffixed table.
+     * Each @State instance gets its own isolated table; no cross-contamination.
+     */
     public RacyDbCounter() {
-        // Replace hyphens: H2 identifiers cannot contain hyphens
         this.table = "pizza_votes_" + UUID.randomUUID().toString().replace("-", "_");
         init();
     }
 
     /**
-     * Creates the per-instance table (fresh, empty). Called once per @State instance.
+     * Server constructor — uses a fixed, pre-existing table.
+     * The table must already exist (created by 01-init.sql or initTable()).
      */
-    public void init() {
+    public RacyDbCounter(String table) {
+        this.table = table;
+    }
+
+    /**
+     * Creates the per-instance UUID table. Called only by the JCStress constructor.
+     */
+    private void init() {
         try (Connection conn = DATA_SOURCE.getConnection();
              Statement stmt = conn.createStatement()) {
-            stmt.execute("CREATE TABLE " + table +
-                    " (pizza VARCHAR(255) PRIMARY KEY, votes INT)");
+            stmt.execute("CREATE TABLE " + table
+                    + " (pizza VARCHAR(255) PRIMARY KEY, votes INT NOT NULL DEFAULT 0)");
         } catch (SQLException e) {
-            throw new IllegalStateException("Unable to initialize DB schema for table " + table, e);
+            throw new IllegalStateException("Unable to init table " + table, e);
         }
     }
 
     /**
-     * Cleans all rows — called by @Before in the JCStress test to reset state
-     * between iterations without recreating the table.
+     * Resets counters to 0 and pre-seeds all known pizza rows.
+     * Called by @Before in the JCStress test before every iteration.
+     * <p>
+     * Pre-seeding is critical: SELECT FOR UPDATE can only lock an existing row.
+     * By inserting all rows here (before actors run), vote() never needs to
+     * INSERT in the hot path — only SELECT FOR UPDATE + UPDATE.
      */
     @Override
     public void resetVotes() {
-        try (Connection conn = DATA_SOURCE.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.execute("DELETE FROM " + table);
+        try (Connection conn = DATA_SOURCE.getConnection()) {
+            conn.setAutoCommit(false);
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute("DELETE FROM " + table);
+            }
+            try (PreparedStatement insert = conn.prepareStatement(
+                    "INSERT INTO " + table + " (pizza, votes) VALUES (?, 0)")) {
+                for (String pizza : KNOWN_PIZZAS) {
+                    insert.setString(1, pizza);
+                    insert.addBatch();
+                }
+                insert.executeBatch();
+            }
+            conn.commit();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Atomically increments the vote counter and returns the new value.
+     * <p>
+     * 100% SQL — no Java synchronization, no try/catch concurrency tricks.
+     * <p>
+     * Step 1 — ensure the row exists (auto-commit, single statement):
+     * INSERT INTO table (pizza, votes) VALUES (?, 0) ON CONFLICT (pizza) DO NOTHING
+     * PostgreSQL executes this atomically: exactly one transaction wins the
+     * INSERT; all others silently skip (DO NOTHING). No duplicate-key error,
+     * no Java-side error handling required.
+     * <p>
+     * Step 2 — pessimistic lock + atomic increment (explicit transaction):
+     * SELECT FOR UPDATE — acquires an exclusive row lock.
+     * Any concurrent transaction touching the same row BLOCKS until COMMIT.
+     * UPDATE votes = votes + 1 — atomic increment under the lock.
+     * SELECT votes — read back our value (lock still held).
+     * COMMIT — release the lock.
+     * <p>
+     * The two-step split is intentional:
+     * - Step 1 runs in auto-commit so its lock scope is minimal (no long txn).
+     * - Step 2 is a short explicit transaction; the row is guaranteed to exist
+     * at this point so SELECT FOR UPDATE always finds it.
+     */
     @Override
     public int vote(String pizza) {
         try (Connection conn = DATA_SOURCE.getConnection()) {
-            // --- Step 1: read current value (non-atomic, this is the bug!) ---
-            int current = 0;
-            try (PreparedStatement select = conn.prepareStatement(
-                    "SELECT votes FROM " + table + " WHERE pizza = ?")) {
-                select.setString(1, pizza);
-                try (ResultSet rs = select.executeQuery()) {
-                    if (rs.next()) {
-                        current = rs.getInt("votes");
+
+            // ── Step 1: ensure row exists — ON CONFLICT DO NOTHING is atomic in PG ──
+            // Runs in auto-commit (its own micro-transaction).
+            // If the row is already there, the INSERT is a no-op — no error thrown.
+            conn.setAutoCommit(true);
+            try (PreparedStatement ins = conn.prepareStatement(
+                    "INSERT INTO " + table + " (pizza, votes) VALUES (?, 0) ")) {
+                // + "ON CONFLICT (pizza) DO NOTHING"
+                ins.setString(1, pizza);
+                ins.executeUpdate();
+            }
+
+            // ── Step 2: pessimistic lock + atomic increment ───────────────────────
+            conn.setAutoCommit(false);
+            try {
+                // Acquire exclusive row lock — concurrent transactions BLOCK here.
+                try (PreparedStatement lockStmt = conn.prepareStatement(
+                        "SELECT votes FROM " + table + " WHERE pizza = ? FOR UPDATE")) {
+                    lockStmt.setString(1, pizza);
+                    lockStmt.executeQuery().close();
+                }
+
+                // Atomic increment under the lock.
+                try (PreparedStatement update = conn.prepareStatement(
+                        "UPDATE " + table + " SET votes = votes + 1 WHERE pizza = ?")) {
+                    update.setString(1, pizza);
+                    update.executeUpdate();
+                }
+
+                // Read back the value we just wrote — lock still held until commit.
+                try (PreparedStatement select = conn.prepareStatement(
+                        "SELECT votes FROM " + table + " WHERE pizza = ?")) {
+                    select.setString(1, pizza);
+                    try (ResultSet rs = select.executeQuery()) {
+                        int newValue = rs.next() ? rs.getInt(1) : 0;
+                        conn.commit();
+                        return newValue;
                     }
                 }
+
+            } catch (SQLException e) {
+                conn.rollback();
+            } finally {
+                conn.setAutoCommit(true);
             }
-
-            // --- Step 2: simulate processing delay to widen the race window ---
-            try {
-                Thread.sleep(1 + RAND.nextInt(5));
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
-
-            int next = current + 1;
-
-            // --- Step 3: write back (another thread may have written a different value already!) ---
-            try (PreparedStatement upsert = conn.prepareStatement(
-                    "MERGE INTO " + table + " (pizza, votes) KEY(pizza) VALUES (?, ?)")) {
-                upsert.setString(1, pizza);
-                upsert.setInt(2, next);
-                upsert.executeUpdate();
-            }
-
-            return next;
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
+        return -1;
     }
 
     @Override
@@ -117,15 +178,16 @@ public final class RacyDbCounter implements PizzaCounter {
         try (Connection conn = DATA_SOURCE.getConnection();
              PreparedStatement select = conn.prepareStatement(
                      "SELECT pizza, votes FROM " + table)) {
-            ResultSet rs = select.executeQuery();
             Map<String, Integer> result = new java.util.HashMap<>();
-            while (rs.next()) {
-                result.put(rs.getString("pizza"), rs.getInt("votes"));
+            try (ResultSet rs = select.executeQuery()) {
+                while (rs.next()) {
+                    result.put(rs.getString("pizza"), rs.getInt("votes"));
+                }
             }
             return result;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
+        return null;
     }
 
     @Override
@@ -140,7 +202,6 @@ public final class RacyDbCounter implements PizzaCounter {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
         return 0;
     }
@@ -151,4 +212,3 @@ public final class RacyDbCounter implements PizzaCounter {
         }
     }
 }
-
