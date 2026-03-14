@@ -1,8 +1,9 @@
 package com.example.demo.domain;
 
-import com.example.demo.counter.ThreadSafeConcurentHashMapCounter;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.IIII_Result;
+
+import com.example.demo.counter.jmm.ThreadSafeConcurentHashMapCounter;
 
 /**
  * ✅ ThreadSafeConcurrentHashMapCounter — thread-safe via ConcurrentHashMap.merge().

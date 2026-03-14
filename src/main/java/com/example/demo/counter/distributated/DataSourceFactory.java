@@ -1,4 +1,4 @@
-package com.example.demo.counter;
+package com.example.demo.counter.distributated;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

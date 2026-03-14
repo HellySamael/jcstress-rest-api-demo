@@ -1,9 +1,11 @@
-package com.example.demo.counter;
+package com.example.demo.counter.jmm;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
+
+import com.example.demo.counter.core.PizzaCounter;
 
 import static java.util.stream.Collectors.toMap;
 

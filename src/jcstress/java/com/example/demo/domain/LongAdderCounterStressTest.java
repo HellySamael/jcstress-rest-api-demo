@@ -1,8 +1,9 @@
 package com.example.demo.domain;
 
-import com.example.demo.counter.LongAdderCounter;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.IIII_Result;
+
+import com.example.demo.counter.jmm.LongAdderCounter;
 
 /**
  * ❌ LongAdderCounter — deceptive: increment is atomic but the return value is NOT.

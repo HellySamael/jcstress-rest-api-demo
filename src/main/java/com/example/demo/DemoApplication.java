@@ -1,14 +1,14 @@
 package com.example.demo;
 
-import com.example.demo.counter.ConcurrentHashMapCounter;
-import com.example.demo.counter.HashMapCounter;
-import com.example.demo.counter.LongAdderCounter;
-import com.example.demo.counter.PizzaCounter;
-import com.example.demo.counter.RacyDbCounter;
-import com.example.demo.counter.SafeDbCounter;
-import com.example.demo.counter.SyncCounter;
-import com.example.demo.counter.ThreadSafeConcurentHashMapCounter;
-import io.javalin.Javalin;
+import com.example.demo.counter.core.PizzaCounter;
+import com.example.demo.counter.distributated.RacyDbCounter;
+import com.example.demo.counter.distributated.SafeDbCounter;
+import com.example.demo.counter.jmm.ConcurrentHashMapCounter;
+import com.example.demo.counter.jmm.HashMapCounter;
+import com.example.demo.counter.jmm.LongAdderCounter;
+import com.example.demo.counter.jmm.SyncCounter;
+import com.example.demo.counter.jmm.ThreadSafeConcurentHashMapCounter;
+
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
 import io.javalin.http.staticfiles.Location;

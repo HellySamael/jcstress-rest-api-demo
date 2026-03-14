@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.client;
 
 import java.net.URI;
 import java.net.http.HttpClient;

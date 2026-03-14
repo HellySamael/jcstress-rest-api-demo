@@ -56,7 +56,6 @@ jcstress {
     forks = "1" // Number of JVM forks for each test
     iterations = "5" // Number of iterations per test
     jvmArgs = "-Xmx1g" // Max 1GB heap for test JVMs
-    regexp = "com.example.demo.domain.*" // Run all stress tests in our package
     reportDir = layout.buildDirectory.dir("reports/jcstress").get().asFile.absolutePath
 }
 

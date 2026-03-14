@@ -1,7 +1,9 @@
-package com.example.demo.counter;
+package com.example.demo.counter.jmm;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.example.demo.counter.core.PizzaCounter;
 
 /**
  * Version 1 of the PizzaCounter implementation using HashMap.

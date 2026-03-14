@@ -1,8 +1,10 @@
-package com.example.demo.counter;
+package com.example.demo.counter.jmm;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.example.demo.counter.core.PizzaCounter;
 
 
 public final class ThreadSafeConcurentHashMapCounter implements PizzaCounter {

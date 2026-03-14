@@ -1,5 +1,6 @@
-package com.example.demo.counter;
+package com.example.demo.counter.distributated;
 
+import com.example.demo.counter.core.PizzaCounter;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;
@@ -9,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 /**

@@ -1,4 +1,4 @@
-package com.example.demo.counter;
+package com.example.demo.counter.core;
 
 import java.util.Map;
 

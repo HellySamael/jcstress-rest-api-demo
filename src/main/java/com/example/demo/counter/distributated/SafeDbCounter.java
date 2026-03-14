@@ -1,5 +1,6 @@
-package com.example.demo.counter;
+package com.example.demo.counter.distributated;
 
+import com.example.demo.counter.core.PizzaCounter;
 import com.zaxxer.hikari.HikariDataSource;
 
 import java.sql.Connection;

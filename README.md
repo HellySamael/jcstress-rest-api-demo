@@ -107,3 +107,22 @@ Partie JMM
 
 partie Distribué (DB pg)
 1/ racy RacyDbCounter devient SafeDbCounter
+
+
+
+## Feuille de route
+1. Start docker 
+2. Run docker => docker-compose up
+3. ...
+4. run scrips   
+A. jmm
+```shell
+cd scripts
+./jcstress-jmm-test.sh
+ ```
+ 
+ B. run scrips db
+```shell
+cd scripts
+./jcstress-db-test.sh
+ ```

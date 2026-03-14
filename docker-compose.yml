@@ -19,23 +19,6 @@ services:
       timeout: 5s
       retries: 10
 
-  app:
-    build: .
-    container_name: pizzavotes-app
-    restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      VOTE_IMPL:   safedb
-      DB_HOST:     postgres
-      DB_PORT:     5432
-      DB_NAME:     pizzavotes
-      DB_USER:     postgres
-      DB_PASSWORD: postgres
-    ports:
-      - "7070:7070"
-
 volumes:
   postgres_data:
 

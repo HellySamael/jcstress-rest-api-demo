@@ -1,8 +1,9 @@
 package com.example.demo.domain;
 
-import com.example.demo.counter.HashMapCounter;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.IIII_Result;
+
+import com.example.demo.counter.jmm.HashMapCounter;
 
 /**
  * ❌ HashMapCounter — NOT thread-safe at all.

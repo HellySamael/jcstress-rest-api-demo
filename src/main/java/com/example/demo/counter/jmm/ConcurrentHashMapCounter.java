@@ -1,7 +1,9 @@
-package com.example.demo.counter;
+package com.example.demo.counter.jmm;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.example.demo.counter.core.PizzaCounter;
 
 /**
  * Version 3 of the PizzaCounter implementation using ConcurrentHashMap.

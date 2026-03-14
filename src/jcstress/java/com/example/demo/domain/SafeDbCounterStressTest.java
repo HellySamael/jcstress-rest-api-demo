@@ -1,8 +1,9 @@
 package com.example.demo.domain;
 
-import com.example.demo.counter.SafeDbCounter;
 import org.openjdk.jcstress.annotations.*;
 import org.openjdk.jcstress.infra.results.IIII_Result;
+
+import com.example.demo.counter.distributated.SafeDbCounter;
 
 /**
  * ✅ SafeDbCounter — thread-safe DB-backed counter, 100% SQL solution.
