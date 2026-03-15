@@ -5,19 +5,7 @@ import org.openjdk.jcstress.infra.results.IIII_Result;
 
 import com.example.demo.counter.jmm.SyncCounter;
 
-/**
- * ✅ SyncCounter — thread-safe via synchronized.
- *
- * Every method is declared synchronized: only one thread at a time can execute
- * vote(). The entire read-modify-write is protected by the instance monitor
- * → no race condition possible.
- *
- * Trade-off: high contention under heavy load (all threads block each other),
- * but correctness is guaranteed.
- *
- * Expected: ONLY {1,2} / {2,1} orderings for each item → all ACCEPTABLE.
- * Any other result would be a JCStress bug or JVM anomaly.
- */
+
 @JCStressTest
 @Description("✅ synchronized — thread-safe. Correct but potentially slow under contention.")
 @Outcome(id = "1, 2, 1, 2", expect = Expect.ACCEPTABLE, desc = "Both items correctly incremented.")

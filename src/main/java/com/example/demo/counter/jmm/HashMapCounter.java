@@ -5,11 +5,7 @@ import java.util.Map;
 
 import com.example.demo.counter.core.PizzaCounter;
 
-/**
- * Version 1 of the PizzaCounter implementation using HashMap.
- * A non-thread-safe implementation of PizzaCounter using HashMap.
- * This class is intentionally not thread-safe to demonstrate race conditions when accessed by multiple threads concurrently.
- */
+
 public final class HashMapCounter implements PizzaCounter {
 
     private final HashMap<String, Integer> votes = new HashMap<>();

@@ -5,20 +5,7 @@ import org.openjdk.jcstress.infra.results.IIII_Result;
 
 import com.example.demo.counter.jmm.LongAdderCounter;
 
-/**
- * ❌ LongAdderCounter — deceptive: increment is atomic but the return value is NOT.
- *
- * LongAdder is designed for high-contention counting, but the implementation here
- * separates the increment from reading the result:
- *
- *   votes.computeIfAbsent(pizza, k -> new LongAdder()).increment(); // atomic ✅
- *   return votes.get(pizza).intValue();                             // separate read ❌
- *
- * Between increment() and intValue(), another thread may have already incremented
- * the same counter, so two actors can both observe the same value (e.g. both return 2).
- *
- * Expected: FORBIDDEN results — two actors on the same item returning the same value.
- */
+
 @JCStressTest
 @Description("❌ LongAdder increment()+intValue() — increment is atomic, returned value is NOT.")
 @Outcome(id = "1, 2, 1, 2", expect = Expect.ACCEPTABLE, desc = "Correct result — actors serialised by luck.")

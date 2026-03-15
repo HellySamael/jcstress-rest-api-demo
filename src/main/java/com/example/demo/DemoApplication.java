@@ -19,9 +19,6 @@ public final class DemoApplication {
     }
 
     public static void main(String[] args) {
-
-        // Choix de l'implémentation via premier argument CLI ou variable d'environnement VOTE_IMPL
-        // Exemples d'options : "hashmap", "sync", "concurrent", "longadder", "threadsafe" (par défaut)
         String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "safedb");
         PizzaCounter voteCounter = switch (impl.toLowerCase()) {
             case "hashmap" -> new HashMapCounter();
@@ -33,15 +30,8 @@ public final class DemoApplication {
             case "threadsave" -> new ThreadSafeConcurentHashMapCounter();
             default -> new ThreadSafeConcurentHashMapCounter();
         };
-
-        // Final copy to allow capture in lambdas
         final String implName = impl;
-
-        // Initialize and configure Javalin
-        // Serve static resources from src/main/resources/public at '/'
         Javalin app = Javalin.create(DemoApplication::configure);
-
-        // Simple CORS support for local demos (UI on another origin/port).
         app.before(ctx -> {
             ctx.header("Access-Control-Allow-Origin", "*");
             ctx.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
@@ -50,34 +40,24 @@ public final class DemoApplication {
         });
 
         app.options("/*", ctx -> ctx.status(204));
-
-        // Start on port 7070
         app.post("/votes/{itemId}", ctx -> {
             String itemId = ctx.pathParam("itemId");
             int newCount = voteCounter.vote(itemId);
             ctx.json(java.util.Collections.singletonMap("votes", newCount));
         });
-
-        // Get all vote counts
         app.get("/votes", ctx -> {
             ctx.json(voteCounter.getVotes());
         });
-
-        // Get vote count for a specific item
         app.get("/votes/{itemId}", ctx -> {
             String itemId = ctx.pathParam("itemId");
             ctx.json(java.util.Collections.singletonMap("votes", voteCounter.getVotesFor(itemId)));
         });
-
-        // Info: which implementation is running (useful for demo)
         app.get("/info", ctx -> {
             ctx.json(java.util.Collections.singletonMap("impl", implName));
         });
-
-        // Reset all votes
         app.delete("/votes", ctx -> {
             voteCounter.resetVotes();
-            ctx.status(204); // No Content
+            ctx.status(204);
         });
 
         app.start(7070);
@@ -96,13 +76,12 @@ public final class DemoApplication {
 
     private static void configure(JavalinConfig config) {
         config.staticFiles.add(staticFileConfig -> {
-            staticFileConfig.hostedPath = "/";      // serve at root
-            staticFileConfig.directory = "public";  // folder in resources
-            staticFileConfig.location = Location.CLASSPATH; // classpath:/public
+            staticFileConfig.hostedPath = "/";
+            staticFileConfig.directory = "public";
+            staticFileConfig.location = Location.CLASSPATH;
         });
 
         config.requestLogger.http((ctx, ms) -> {
-            // Log all requests
             System.out.println("Request: " + ctx.req().getMethod() + " " + ctx.req().getRequestURI() + " took " + ms + " ms");
         });
     }

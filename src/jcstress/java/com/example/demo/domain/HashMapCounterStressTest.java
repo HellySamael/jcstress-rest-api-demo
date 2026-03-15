@@ -5,21 +5,7 @@ import org.openjdk.jcstress.infra.results.IIII_Result;
 
 import com.example.demo.counter.jmm.HashMapCounter;
 
-/**
- * ❌ HashMapCounter — NOT thread-safe at all.
- *
- * HashMap provides no thread-safety guarantees. The compound read-modify-write
- * sequence (get + put) is not atomic:
- *
- *   votes.put(pizza, votes.getOrDefault(pizza, 0) + 1);
- *       ^read^                                    ^write^  ← not atomic!
- *
- * Two threads can read the same value simultaneously, both compute +1,
- * and one update overwrites the other → lost vote.
- * Internal HashMap corruption (NPE, infinite loop) is also possible.
- *
- * Expected: FORBIDDEN results frequently (e.g. both actors return 1).
- */
+
 @JCStressTest
 @Description("❌ HashMap — neither atomic nor thread-safe. Demonstrates lost updates.")
 @Outcome(id = "1, 2, 1, 2", expect = Expect.ACCEPTABLE, desc = "Correct result — actors serialised by luck.")

@@ -3,24 +3,12 @@ package com.example.demo.counter.distributated;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
-/**
- * Centralised DataSource factory — PostgreSQL only.
- *
- * Configuration via environment variables (all optional, sensible defaults):
- *   DB_URL      — full JDBC URL override (takes priority over individual vars)
- *   DB_HOST     — hostname            (default: localhost)
- *   DB_PORT     — port                (default: 5432)
- *   DB_NAME     — database name       (default: pizzavotes)
- *   DB_USER     — username            (default: postgres)
- *   DB_PASSWORD — password            (default: postgres)
- *
- * Used by RacyDbCounter and SafeDbCounter (UUID-suffixed tables for JCStress isolation).
- */
+
 public final class DataSourceFactory {
 
     private DataSourceFactory() {}
 
-    /** Singleton — created once at class-load time. */
+    
     public static final HikariDataSource SERVER_DATA_SOURCE = build();
 
     private static HikariDataSource build() {

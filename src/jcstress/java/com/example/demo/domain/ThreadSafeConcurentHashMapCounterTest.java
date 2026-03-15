@@ -5,18 +5,7 @@ import org.openjdk.jcstress.infra.results.IIII_Result;
 
 import com.example.demo.counter.jmm.ThreadSafeConcurentHashMapCounter;
 
-/**
- * ✅ ThreadSafeConcurrentHashMapCounter — thread-safe via ConcurrentHashMap.merge().
- *
- * ConcurrentHashMap.merge() is an ATOMIC operation: it combines the read,
- * the computation, and the write into a single indivisible step.
- * No race condition is possible on the counter.
- *
- * This is the recommended solution: both correct AND performant.
- * Unlike synchronized, independent items (item1 vs item2) do not contend.
- *
- * Expected: ONLY {1,2} / {2,1} orderings for each item → all ACCEPTABLE.
- */
+
 @JCStressTest
 @Description("✅ ConcurrentHashMap.merge() — atomic and performant. The right solution.")
 @Outcome(id = "1, 2, 1, 2", expect = Expect.ACCEPTABLE, desc = "Both items correctly incremented.")

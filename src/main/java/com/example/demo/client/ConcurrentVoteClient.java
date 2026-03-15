@@ -46,8 +46,6 @@ public final class ConcurrentVoteClient {
         HttpClient client = HttpClient.newBuilder()
                 .executor(Executors.newFixedThreadPool(numConcurrentRequests))
                 .build();
-
-        // Reset votes first
         HttpRequest deleteRequest = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/votes"))
                 .DELETE()
@@ -88,8 +86,6 @@ public final class ConcurrentVoteClient {
         long durationMillis = TimeUnit.NANOSECONDS.toMillis(endTime - startTime);
 
         System.out.println("Sent " + successCount.get() + " successful POST /votes/{itemId} requests in " + durationMillis + " ms.");
-
-        // Fetch the final vote counts
         System.out.println("Fetching final vote counts...");
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/votes"))
@@ -98,8 +94,6 @@ public final class ConcurrentVoteClient {
         HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
         String body = getResponse.body();
         System.out.println("Final vote counts: " + body);
-
-        // Nouveau check : sommer les votes renvoyés par le serveur et comparer au total attendu
         int sumVotes = sumVotesFromJson(body);
         System.out.println("Expected total votes: " + numTotalRequests);
         if (sumVotes != numTotalRequests) {
@@ -108,20 +102,13 @@ public final class ConcurrentVoteClient {
         } else {
             System.out.println("[OK] Total votes match expected total requests.");
         }
-
-        // Also print if successful HTTP responses differ from expected total
         if (successCount.get() != numTotalRequests) {
             System.err.println("[WARNING] Number of successful HTTP responses (" + successCount.get() + ") differs from expected total requests (" + numTotalRequests + ").");
         }
-
-        // Fetch the final vote counts (already printed)
         System.out.println("Done.");
     }
-
-    // Petite méthode utilitaire qui extrait tous les nombres du JSON d'objet simple et les somme.
     private static int sumVotesFromJson(String json) {
         if (json == null || json.isBlank()) return 0;
-        // Simple extraction des entiers : recherche de ":\s*<nombre>" ; marche pour des réponses comme {"a":1,"b":2}
         Pattern p = Pattern.compile(":\\s*([0-9]+)");
         Matcher m = p.matcher(json);
         int sum = 0;

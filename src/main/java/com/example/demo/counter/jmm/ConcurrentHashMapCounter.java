@@ -5,14 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.example.demo.counter.core.PizzaCounter;
 
-/**
- * Version 3 of the PizzaCounter implementation using ConcurrentHashMap.
- * A non thread-safe implementation of PizzaCounter using ConcurrentHashMap.
- * This class uses a ConcurrentHashMap to manage votes,
- * which allows for concurrent updates without the need for explicit synchronization.
- * The putIfAbsent and compute methods are used to ensure that updates to the vote counts are atomic and thread-safe,
- * but this not prevent race conditions.
- */
+
 public final class ConcurrentHashMapCounter implements PizzaCounter {
 
     private final Map<String, Integer> votes = new ConcurrentHashMap<>();
