@@ -19,7 +19,7 @@ public final class DemoApplication {
     }
 
     public static void main(String[] args) {
-        String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "safedb");
+        String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "hashmap");
         PizzaCounter voteCounter = switch (impl.toLowerCase()) {
             case "hashmap" -> new HashMapCounter();
             case "sync" -> new SyncCounter();
