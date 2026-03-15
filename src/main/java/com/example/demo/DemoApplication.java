@@ -14,10 +14,10 @@ public final class DemoApplication {
     }
 
     public static void main(String[] args) {
-        String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "jmm");
+        String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "hashmap");
         PizzaCounter voteCounter = switch (impl.toLowerCase()) {
-            case "distributed" -> new AppDbCounter("pizza_votes");
-            case "jmm" -> new AppCounter();
+            case "hashmap", "sync", "concurrent", "longadder", "threadsafe", "threadsave", "jmm" -> new AppCounter();
+            case "racydb", "safedb", "distributed", "db" -> new AppDbCounter("pizza_votes");
             default -> new AppCounter();
         };
 
