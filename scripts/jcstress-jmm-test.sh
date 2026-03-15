@@ -7,4 +7,4 @@ ROOT_DIR="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 rm -rf "${ROOT_DIR}/build/reports/jcstress"
 
 # Run only JMM jcstress tests (fully-qualified names, regex required by jcstress).
-"${ROOT_DIR}/gradlew" --project-dir "${ROOT_DIR}" jcstress --no-configuration-cache --tests "domain.HashMapCounterStressTest"
+"${ROOT_DIR}/gradlew" --project-dir "${ROOT_DIR}" jcstress --no-configuration-cache --tests "domain.AppCounterStressTest"

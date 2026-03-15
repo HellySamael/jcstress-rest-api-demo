@@ -5,8 +5,7 @@ import java.util.Map;
 
 import com.example.demo.counter.core.PizzaCounter;
 
-
-public final class HashMapCounter implements PizzaCounter {
+public final class AppCounter implements PizzaCounter {
 
     private final HashMap<String, Integer> votes = new HashMap<>();
 
@@ -14,7 +13,7 @@ public final class HashMapCounter implements PizzaCounter {
     public int vote(String pizza) {
         Integer v = votes.get(pizza);
         votes.put(pizza, v == null ? 1 : v + 1);
-        return  votes.get(pizza);
+        return votes.get(pizza);
     }
 
     @Override

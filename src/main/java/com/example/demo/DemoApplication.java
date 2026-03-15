@@ -1,13 +1,8 @@
 package com.example.demo;
 
 import com.example.demo.counter.core.PizzaCounter;
-import com.example.demo.counter.distributated.RacyDbCounter;
-import com.example.demo.counter.distributated.SafeDbCounter;
-import com.example.demo.counter.jmm.ConcurrentHashMapCounter;
-import com.example.demo.counter.jmm.HashMapCounter;
-import com.example.demo.counter.jmm.LongAdderCounter;
-import com.example.demo.counter.jmm.SyncCounter;
-import com.example.demo.counter.jmm.ThreadSafeConcurentHashMapCounter;
+import com.example.demo.counter.distributated.AppDbCounter;
+import com.example.demo.counter.jmm.AppCounter;
 
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
@@ -21,14 +16,9 @@ public final class DemoApplication {
     public static void main(String[] args) {
         String impl = args.length > 0 ? args[0] : System.getenv().getOrDefault("VOTE_IMPL", "hashmap");
         PizzaCounter voteCounter = switch (impl.toLowerCase()) {
-            case "hashmap" -> new HashMapCounter();
-            case "sync" -> new SyncCounter();
-            case "concurrent" -> new ConcurrentHashMapCounter();
-            case "longadder" -> new LongAdderCounter();
-            case "racydb"     -> new RacyDbCounter("pizza_votes");
-            case "safedb"     -> new SafeDbCounter("pizza_votes");
-            case "threadsave" -> new ThreadSafeConcurentHashMapCounter();
-            default -> new ThreadSafeConcurentHashMapCounter();
+            case "hashmap", "sync", "concurrent", "threadsafe", "threadsave", "jmm" -> new AppCounter();
+            case "racydb", "safedb", "db" -> new AppDbCounter("pizza_votes");
+            default -> new AppCounter();
         };
         final String implName = impl;
         Javalin app = Javalin.create(DemoApplication::configure);
