@@ -8,7 +8,7 @@
       "votes.put(pizza, next);",
       "return next;"
     ],
-    "description": "AppCounter vote() for HashMap racy step"
+    "description": "[Step 10] AppCounter vote() for HashMap racy step"
   },
   "Live JMM synchronized vote": {
     "scope": "java",
@@ -21,7 +21,7 @@
       "    return next;",
       "}"
     ],
-    "description": "AppCounter synchronized vote()"
+    "description": "[Step 20] AppCounter synchronized vote()"
   },
   "Live JMM ConcurrentHashMap get/put (racy)": {
     "scope": "java",
@@ -31,7 +31,7 @@
       "votes.put(pizza, votes.get(pizza) + 1);",
       "return votes.get(pizza);"
     ],
-    "description": "AppCounter vote() with CHM but non-atomic sequence"
+    "description": "[Step 30] AppCounter vote() with CHM but non-atomic sequence"
   },
   "Live JMM merge (safe)": {
     "scope": "java",
@@ -39,7 +39,7 @@
     "body": [
       "return votes.merge(pizza, 1, Integer::sum);"
     ],
-    "description": "AppCounter vote() with atomic merge"
+    "description": "[Step 40] AppCounter vote() with atomic merge"
   },
   "Live DB racy vote": {
     "scope": "java",
@@ -69,7 +69,7 @@
       "    return next;",
       "}"
     ],
-    "description": "AppDbCounter vote() racy read-modify-write"
+    "description": "[Step 50] AppDbCounter vote() racy read-modify-write"
   },
   "Live DB safe vote (SELECT FOR UPDATE)": {
     "scope": "java",
@@ -108,6 +108,6 @@
       "    }",
       "}"
     ],
-    "description": "AppDbCounter vote() safe with row lock"
+    "description": "[Step 60] AppDbCounter vote() safe with row lock"
   }
 }
