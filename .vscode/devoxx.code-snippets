@@ -1,32 +1,113 @@
 {
-	// Place your DEVOXX workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
-	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
-	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
-	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
-	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
-	// Placeholders with the same ids are connected.
-	// Example:
-	// "Print to console": {
-	// 	"scope": "javascript,typescript",
-	// 	"prefix": "log",
-	// 	"body": [
-	// 		"console.log('$1');",
-	// 		"$2"
-	// 	],
-	// 	"description": "Log output to console"
-	// }
-	//
-	// You can also restrict snippets to specific files using include/exclude patterns:
-	"Test snippet": {
-	 	"scope": "java",
-	 	"prefix": "getandinc",
-	 	"body": [
-			"public int getAndIncrement(){",
-			"    return ++count;",
-			"}",			
-		],
-	 	//"include": ["**/*.test.ts", "*.spec.ts"],
-	 	//"exclude": ["**/temp/*.ts"],
-	 	"description": "getAndIncrement function"
-	 }
+  "Live JMM HashMap vote (racy)": {
+    "scope": "java",
+    "prefix": "live-jmm-hashmap",
+    "body": [
+      "Integer v = votes.get(pizza);",
+      "int next = v == null ? 1 : v + 1;",
+      "votes.put(pizza, next);",
+      "return next;"
+    ],
+    "description": "AppCounter vote() for HashMap racy step"
+  },
+  "Live JMM synchronized vote": {
+    "scope": "java",
+    "prefix": "live-jmm-sync",
+    "body": [
+      "public synchronized int vote(String pizza) {",
+      "    Integer v = votes.get(pizza);",
+      "    int next = v == null ? 1 : v + 1;",
+      "    votes.put(pizza, next);",
+      "    return next;",
+      "}"
+    ],
+    "description": "AppCounter synchronized vote()"
+  },
+  "Live JMM ConcurrentHashMap get/put (racy)": {
+    "scope": "java",
+    "prefix": "live-jmm-chm",
+    "body": [
+      "votes.putIfAbsent(pizza, 0);",
+      "votes.put(pizza, votes.get(pizza) + 1);",
+      "return votes.get(pizza);"
+    ],
+    "description": "AppCounter vote() with CHM but non-atomic sequence"
+  },
+  "Live JMM merge (safe)": {
+    "scope": "java",
+    "prefix": "live-jmm-merge",
+    "body": [
+      "return votes.merge(pizza, 1, Integer::sum);"
+    ],
+    "description": "AppCounter vote() with atomic merge"
+  },
+  "Live DB racy vote": {
+    "scope": "java",
+    "prefix": "live-db-racy",
+    "body": [
+      "try (Connection conn = DATA_SOURCE.getConnection()) {",
+      "    conn.setAutoCommit(true);",
+      "    try (PreparedStatement insert = conn.prepareStatement(",
+      "            \"INSERT INTO \" + table + \" (pizza, votes) VALUES (?, 0) ON CONFLICT (pizza) DO NOTHING\")) {",
+      "        insert.setString(1, pizza);",
+      "        insert.executeUpdate();",
+      "    }",
+      "    int current;",
+      "    try (PreparedStatement select = conn.prepareStatement(\"SELECT votes FROM \" + table + \" WHERE pizza = ?\")) {",
+      "        select.setString(1, pizza);",
+      "        try (ResultSet rs = select.executeQuery()) {",
+      "            current = rs.next() ? rs.getInt(1) : 0;",
+      "        }",
+      "    }",
+      "    int next = current + 1;",
+      "    try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }",
+      "    try (PreparedStatement update = conn.prepareStatement(\"UPDATE \" + table + \" SET votes = ? WHERE pizza = ?\")) {",
+      "        update.setInt(1, next);",
+      "        update.setString(2, pizza);",
+      "        update.executeUpdate();",
+      "    }",
+      "    return next;",
+      "}"
+    ],
+    "description": "AppDbCounter vote() racy read-modify-write"
+  },
+  "Live DB safe vote (SELECT FOR UPDATE)": {
+    "scope": "java",
+    "prefix": "live-db-safe",
+    "body": [
+      "try (Connection conn = DATA_SOURCE.getConnection()) {",
+      "    conn.setAutoCommit(true);",
+      "    try (PreparedStatement insert = conn.prepareStatement(",
+      "            \"INSERT INTO \" + table + \" (pizza, votes) VALUES (?, 0) ON CONFLICT (pizza) DO NOTHING\")) {",
+      "        insert.setString(1, pizza);",
+      "        insert.executeUpdate();",
+      "    }",
+      "    conn.setAutoCommit(false);",
+      "    try {",
+      "        try (PreparedStatement lockStmt = conn.prepareStatement(\"SELECT votes FROM \" + table + \" WHERE pizza = ? FOR UPDATE\")) {",
+      "            lockStmt.setString(1, pizza);",
+      "            lockStmt.executeQuery().close();",
+      "        }",
+      "        try (PreparedStatement update = conn.prepareStatement(\"UPDATE \" + table + \" SET votes = votes + 1 WHERE pizza = ?\")) {",
+      "            update.setString(1, pizza);",
+      "            update.executeUpdate();",
+      "        }",
+      "        try (PreparedStatement select = conn.prepareStatement(\"SELECT votes FROM \" + table + \" WHERE pizza = ?\")) {",
+      "            select.setString(1, pizza);",
+      "            try (ResultSet rs = select.executeQuery()) {",
+      "                int newValue = rs.next() ? rs.getInt(1) : 0;",
+      "                conn.commit();",
+      "                return newValue;",
+      "            }",
+      "        }",
+      "    } catch (SQLException e) {",
+      "        conn.rollback();",
+      "        throw e;",
+      "    } finally {",
+      "        conn.setAutoCommit(true);",
+      "    }",
+      "}"
+    ],
+    "description": "AppDbCounter vote() safe with row lock"
+  }
 }

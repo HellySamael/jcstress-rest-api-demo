@@ -1,0 +1,32 @@
+<templateSet group="DEVOXX LiveCoding">
+  <template name="liveJmmHashMap" value="Integer v = votes.get(pizza);&#10;int next = v == null ? 1 : v + 1;&#10;votes.put(pizza, next);&#10;return next;" description="AppCounter vote() HashMap racy" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="liveJmmSyncVote" value="public synchronized int vote(String pizza) {&#10;    Integer v = votes.get(pizza);&#10;    int next = v == null ? 1 : v + 1;&#10;    votes.put(pizza, next);&#10;    return next;&#10;}" description="AppCounter synchronized vote()" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="liveJmmChmRacy" value="votes.putIfAbsent(pizza, 0);&#10;votes.put(pizza, votes.get(pizza) + 1);&#10;return votes.get(pizza);" description="AppCounter CHM non-atomic get/put" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="liveJmmMergeSafe" value="return votes.merge(pizza, 1, Integer::sum);" description="AppCounter merge() safe" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="liveDbRacyVote" value="try (Connection conn = DATA_SOURCE.getConnection()) {&#10;    conn.setAutoCommit(true);&#10;    try (PreparedStatement insert = conn.prepareStatement(&quot;INSERT INTO &quot; + table + &quot; (pizza, votes) VALUES (?, 0) ON CONFLICT (pizza) DO NOTHING&quot;)) {&#10;        insert.setString(1, pizza);&#10;        insert.executeUpdate();&#10;    }&#10;    int current;&#10;    try (PreparedStatement select = conn.prepareStatement(&quot;SELECT votes FROM &quot; + table + &quot; WHERE pizza = ?&quot;)) {&#10;        select.setString(1, pizza);&#10;        try (ResultSet rs = select.executeQuery()) {&#10;            current = rs.next() ? rs.getInt(1) : 0;&#10;        }&#10;    }&#10;    int next = current + 1;&#10;    try { Thread.sleep(1); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }&#10;    try (PreparedStatement update = conn.prepareStatement(&quot;UPDATE &quot; + table + &quot; SET votes = ? WHERE pizza = ?&quot;)) {&#10;        update.setInt(1, next);&#10;        update.setString(2, pizza);&#10;        update.executeUpdate();&#10;    }&#10;    return next;&#10;}" description="AppDbCounter racy vote()" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+  <template name="liveDbSafeVote" value="try (Connection conn = DATA_SOURCE.getConnection()) {&#10;    conn.setAutoCommit(true);&#10;    try (PreparedStatement insert = conn.prepareStatement(&quot;INSERT INTO &quot; + table + &quot; (pizza, votes) VALUES (?, 0) ON CONFLICT (pizza) DO NOTHING&quot;)) {&#10;        insert.setString(1, pizza);&#10;        insert.executeUpdate();&#10;    }&#10;    conn.setAutoCommit(false);&#10;    try {&#10;        try (PreparedStatement lockStmt = conn.prepareStatement(&quot;SELECT votes FROM &quot; + table + &quot; WHERE pizza = ? FOR UPDATE&quot;)) {&#10;            lockStmt.setString(1, pizza);&#10;            lockStmt.executeQuery().close();&#10;        }&#10;        try (PreparedStatement update = conn.prepareStatement(&quot;UPDATE &quot; + table + &quot; SET votes = votes + 1 WHERE pizza = ?&quot;)) {&#10;            update.setString(1, pizza);&#10;            update.executeUpdate();&#10;        }&#10;        try (PreparedStatement select = conn.prepareStatement(&quot;SELECT votes FROM &quot; + table + &quot; WHERE pizza = ?&quot;)) {&#10;            select.setString(1, pizza);&#10;            try (ResultSet rs = select.executeQuery()) {&#10;                int newValue = rs.next() ? rs.getInt(1) : 0;&#10;                conn.commit();&#10;                return newValue;&#10;            }&#10;        }&#10;    } catch (SQLException e) {&#10;        conn.rollback();&#10;        throw e;&#10;    } finally {&#10;        conn.setAutoCommit(true);&#10;    }&#10;}" description="AppDbCounter safe vote()" toReformat="true" toShortenFQNames="true">
+    <context>
+      <option name="JAVA_CODE" value="true" />
+    </context>
+  </template>
+</templateSet>
