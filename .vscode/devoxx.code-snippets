@@ -1,4 +1,45 @@
 {
+    "JCSTRESS-1": {
+    "scope": "java",
+    "prefix": "jcstress-1",
+    "body": [
+      "@JCStressTest",
+      "@Description(\"AppCounter JMM behavior\")",
+      "@Outcome(id = \"1, 2, 1, 2\", expect = Expect.ACCEPTABLE, desc = \"Correct ordering\")",
+      "@Outcome(id = \"2, 1, 1, 2\", expect = Expect.ACCEPTABLE, desc = \"Correct ordering\")", 
+      "@Outcome(id = \"1, 2, 2, 1\", expect = Expect.ACCEPTABLE, desc = \"Correct ordering\")",
+      "@Outcome(id = \"2, 1, 2, 1\", expect = Expect.ACCEPTABLE, desc = \"Correct ordering\")",
+      "@Outcome(expect = Expect.FORBIDDEN, desc = \"Lost update\")",
+      "@State"
+    ],
+    "description": "Jcstress-1-annotation"
+  },
+  "JCSTRESS-2": {
+    "scope": "java",
+    "prefix": "jcstress-2",
+    "body": [
+    "@Actor",
+    "public void actor1(IIII_Result r) {",
+    "    r.r1 = counter.vote(\"item1\");",
+    "}",
+    "",
+    "@Actor",
+    "public void actor2(IIII_Result r) {",
+    "    r.r2 = counter.vote(\"item1\");",
+    "}",
+"",
+    "@Actor",
+    "public void actor3(IIII_Result r) {",
+    "    r.r3 = counter.vote(\"item2\");",
+    "}",
+"",
+    "@Actor",
+    "public void actor4(IIII_Result r) {",
+    "    r.r4 = counter.vote(\"item2\");",
+    "}",
+    ],
+    "description": "Jcstress-1-actors"
+  }, 
   "Live JMM HashMap vote (racy)": {
     "scope": "java",
     "prefix": "live-jmm-hashmap",

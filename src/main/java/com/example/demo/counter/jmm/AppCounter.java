@@ -14,7 +14,6 @@ public final class AppCounter implements PizzaCounter {
         Integer v = votes.get(pizza);
         votes.put(pizza, v == null ? 1 : v + 1);
         return votes.get(pizza);
-        //return votes.getOrDefault(pizza, -1); //avoid NPE
     }
 
     @Override
