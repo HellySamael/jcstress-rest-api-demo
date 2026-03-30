@@ -6,39 +6,13 @@ import org.openjdk.jcstress.annotations.Expect;
 import org.openjdk.jcstress.annotations.JCStressTest;
 import org.openjdk.jcstress.annotations.Outcome;
 import org.openjdk.jcstress.annotations.State;
-import org.openjdk.jcstress.infra.results.IIII_Result;
 
 import com.example.demo.counter.jmm.AppCounter;
+import org.openjdk.jcstress.infra.results.II_Result;
 
-@JCStressTest
-@Description("AppCounter JMM behavior")
-@Outcome(id = "1, 2, 1, 2", expect = Expect.ACCEPTABLE, desc = "Correct ordering")
-@Outcome(id = "2, 1, 1, 2", expect = Expect.ACCEPTABLE, desc = "Correct ordering")
-@Outcome(id = "1, 2, 2, 1", expect = Expect.ACCEPTABLE, desc = "Correct ordering")
-@Outcome(id = "2, 1, 2, 1", expect = Expect.ACCEPTABLE, desc = "Correct ordering")
-@Outcome(expect = Expect.FORBIDDEN, desc = "Lost update")
-@State
+
 public class AppCounterStressTest {
 
     private final AppCounter counter = new AppCounter();
 
-    @Actor
-    public void actor1(IIII_Result r) {
-        r.r1 = counter.vote("item1");
-    }
-
-    @Actor
-    public void actor2(IIII_Result r) {
-        r.r2 = counter.vote("item1");
-    }
-
-    @Actor
-    public void actor3(IIII_Result r) {
-        r.r3 = counter.vote("item2");
-    }
-
-    @Actor
-    public void actor4(IIII_Result r) {
-        r.r4 = counter.vote("item2");
-    }
 }

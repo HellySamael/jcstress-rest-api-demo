@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.counter.core.PizzaCounter;
-import com.example.demo.counter.distributated.AppDbCounter;
+import com.example.demo.counter.distributed.AppDbCounter;
 import com.example.demo.counter.jmm.AppCounter;
 
 import io.javalin.Javalin;
