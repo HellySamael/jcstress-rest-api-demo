@@ -142,7 +142,7 @@ q('#refresh').addEventListener('click', async () => {
 q('#reset').addEventListener('click', reset);
 
 // Auto-refresh machinery
-const AUTO_REFRESH_INTERVAL_MS = 5000; // default 5s, adjustable
+const AUTO_REFRESH_INTERVAL_MS = 1000;
 let autoRefreshTimer = null;
 let isRefreshing = false;
 
